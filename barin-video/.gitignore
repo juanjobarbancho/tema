@@ -1,0 +1,4 @@
+node_modules/
+.remotion/
+# Se genera con `npm run sfx` (también lo hacen studio y render)
+public/audio/

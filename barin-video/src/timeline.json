@@ -1,0 +1,30 @@
+{
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "total": 930,
+  "escenas": {
+    "telefono": [0, 232],
+    "teLlamamos": [218, 90],
+    "notas": [293, 221],
+    "foto1": [500, 92],
+    "foto2": [578, 86],
+    "datos": [650, 134],
+    "cierre": [770, 160]
+  },
+  "telefono": {
+    "notificaciones": [-40, -20, 0, 12, 22, 30, 37, 43, 49, 54, 59, 63, 67, 71, 75, 78, 81, 84, 87],
+    "titular2": 88,
+    "barrido": 128,
+    "llamadaEntra": 140,
+    "titularLlamada": 146,
+    "tonos": [146, 182],
+    "toque": 206
+  },
+  "teLlamamos": {"nada": 12, "golpe": 18, "sub1": 40, "sub2": 50},
+  "notas": {"items": [34, 56, 78, 100, 122], "escribir": 18, "barra": 150},
+  "fotos": {"titular": 12, "caja": 34},
+  "datos": {"filas": [18, 36, 50, 64, 76]},
+  "cierre": {"linea1": 6, "linea2": 28, "salida": 52, "logo": 58, "tagline": 80, "cta": 96},
+  "musica": {"inicio": 236, "compas": 75}
+}

@@ -1,0 +1,25 @@
+{
+  "name": "barin-video",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Reel vertical para Inmobiliaria Barin (Remotion)",
+  "scripts": {
+    "sfx": "node scripts/generar-audio.mjs",
+    "studio": "node scripts/generar-audio.mjs && remotion studio",
+    "render": "node scripts/generar-audio.mjs && remotion render BarinTeLlama out/barin-te-llama.mp4",
+    "portada": "remotion still BarinTeLlama out/portada.png --frame=275",
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@fontsource/caveat": "^5.0.0",
+    "@fontsource/poppins": "^5.0.0",
+    "@remotion/cli": "4.0.528",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "4.0.528"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "typescript": "^5.5.0"
+  }
+}
