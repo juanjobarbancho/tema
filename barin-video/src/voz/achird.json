@@ -1,0 +1,132 @@
+{
+  "toma": "achird",
+  "fps": 30,
+  "total": 914,
+  "duracionVoz": 28.996,
+  "marcas": {
+    "inicio": 0,
+    "ninguna": 83,
+    "hasta": 120,
+    "distinto": 165,
+    "barin": 192,
+    "noAlertas": 228,
+    "teLlaman": 267,
+    "llaman": 272,
+    "acuerdan": 297,
+    "luz": 336,
+    "cole": 382,
+    "quintos": 431,
+    "algoritmo": 489,
+    "persona": 546,
+    "llevan": 603,
+    "noventa": 663,
+    "cta": 703,
+    "yaTeLlaman": 750,
+    "cierre": 788,
+    "llamada": 840,
+    "finVoz": 862
+  },
+  "notificaciones": [
+    -40,
+    -20,
+    0,
+    13,
+    24,
+    34,
+    42,
+    49,
+    55,
+    61,
+    65,
+    69,
+    72,
+    76,
+    79,
+    82,
+    85,
+    88,
+    92,
+    95,
+    98,
+    101,
+    104,
+    108
+  ],
+  "escenas": {
+    "telefono": [
+      0,
+      281
+    ],
+    "teLlamamos": [
+      267,
+      48
+    ],
+    "notas": [
+      301,
+      259
+    ],
+    "persona": [
+      546,
+      71
+    ],
+    "datos": [
+      603,
+      114
+    ],
+    "cierre": [
+      703,
+      99
+    ],
+    "bucle": [
+      788,
+      126
+    ]
+  },
+  "eventos": {
+    "barrido": 120,
+    "llamada": 155,
+    "toque": 263,
+    "tonos": [
+      157,
+      193,
+      229
+    ],
+    "notasItems": [
+      8,
+      35,
+      81,
+      130,
+      188
+    ],
+    "notasEscribir": 16,
+    "datos": {
+      "oficinas": 6,
+      "profesionales": 16,
+      "anio": 52,
+      "ciudades": 70
+    },
+    "cierre": {
+      "logo": 2,
+      "tagline": 16,
+      "telefonos": 47
+    },
+    "bucle": {
+      "notificaciones": [
+        2,
+        9,
+        15,
+        20,
+        24,
+        28,
+        31,
+        34
+      ],
+      "llamada": 46,
+      "tonos": [
+        48,
+        84
+      ],
+      "rotulo": 52
+    }
+  }
+}

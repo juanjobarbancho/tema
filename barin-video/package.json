@@ -4,10 +4,11 @@
   "version": "1.0.0",
   "description": "Reel vertical para Inmobiliaria Barin (Remotion)",
   "scripts": {
-    "sfx": "node scripts/generar-audio.mjs",
-    "studio": "node scripts/generar-audio.mjs && remotion studio",
-    "render": "node scripts/generar-audio.mjs && remotion render BarinTeLlama out/barin-te-llama.mp4",
-    "portada": "remotion still BarinTeLlama out/portada.png --frame=275",
+    "preparar": "node scripts/preparar-voz.mjs laomedeia && node scripts/preparar-voz.mjs achird && node scripts/generar-audio.mjs laomedeia && node scripts/generar-audio.mjs achird",
+    "studio": "npm run preparar && remotion studio",
+    "render:mujer": "node scripts/preparar-voz.mjs laomedeia && node scripts/generar-audio.mjs laomedeia && remotion render Barin-Mujer out/barin-mujer.mp4",
+    "render:hombre": "node scripts/preparar-voz.mjs achird && node scripts/generar-audio.mjs achird && remotion render Barin-Hombre out/barin-hombre.mp4",
+    "portada": "remotion still Portada out/portada.png",
     "typecheck": "tsc -p ."
   },
   "dependencies": {

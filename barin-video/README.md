@@ -1,55 +1,106 @@
-# Barin · "Te llamamos" — Reel vertical (Remotion)
+# Barin · "Te llamamos" — Reel narrado (Remotion)
 
-Vídeo de ~31 s en 1080×1920 para Reels/TikTok/Shorts de **Inmobiliaria Barin** (Córdoba, Málaga y Costa del Sol, Sevilla, Murcia).
-Idea: las apps te bombardean con alertas de pisos; en Barin no hacen falta, **te llaman**, porque saben lo que buscas.
+Reel de ~30 s en 1080×1920 para **Inmobiliaria Barin** (Córdoba, Málaga y Costa del Sol, Sevilla, Murcia).
+Sigue el método de los vídeos de historia de Pawer y Weddea: una voz que te lo cuenta como una amiga, el vídeo montado sobre la voz y poco texto en pantalla.
 
-- Vídeo final: `out/barin-te-llama.mp4`
-- Portada para el post: `out/portada.png`
+**Idea:** las apps te bombardean con alertas de pisos. En Barin no hacen falta: te llaman, porque saben lo que buscas.
+
+| Archivo | Qué es |
+|---|---|
+| `out/barin-mujer.mp4` | Versión principal, voz de mujer (Laomedeia) · 29,5 s |
+| `out/barin-hombre.mp4` | Versión para test A/B, voz de hombre (Achird) · 30,5 s |
+| `out/portada.png` | Portada (lo importante entre y=240 e y=1680) |
 
 ## Guion
 
-| Tiempo | Escena | Qué pasa |
-|---|---|---|
-| 0–4 s | Gancho | Móvil saturado de notificaciones y vibrando. "Hoy te han llegado **47 alertas** de pisos." → "Y **ninguna** es tu casa." |
-| 4–7,5 s | Giro | Las alertas salen de la pantalla y entra una llamada: **Barin**. "En Barin, las alertas **suenan así:**" |
-| 7,5–10 s | Mensaje | Transición en forma de tejado (el chevron del logo). "~~Nada de alertas.~~ **Te llamamos.** Por teléfono. Como toda la vida." |
-| 10–17 s | Prueba | Notas escritas a mano de la llamada: 3 dormitorios + despacho, luz por la mañana, cerca del cole, nada de quintos sin ascensor, que se sientan en casa. "Eso no lo sabe **ningún algoritmo**." |
-| 17–22 s | Personas | Fotos reales de sus oficinas: "Lo sabe una persona. Que te escucha." / "Y te llama cuando aparece **tu casa**." |
-| 22–26 s | Datos | Pared de chevrones de madera (como en sus oficinas). "Llamando a sus clientes desde **1994**", **12** oficinas, **+50** profesionales *(que cogen el teléfono)*. |
-| 26–31 s | Cierre | "Una app te hace buscar. Una llamada te hace **encontrar**." → logo → su eslogan *La diferencia entre buscar y encontrar* + CTA y teléfonos. |
+**OBJETIVO:** notoriedad y confianza (que te guarden y te llamen).
+**PALANCA:** identificación ("a mí también me pasa con las alertas") y patrón roto (la alerta que suena es una llamada).
+**ÁNGULO:** ninguna app sabe lo que buscas; una persona, sí.
+
+**HOOK (0–3 s)**
+- Voz (12 palabras): "Cuarenta y siete alertas de pisos hoy. Y ninguna es tu casa."
+- Pantalla: "¿TE SUENA?"
+- Fotograma 1: el móvil vibrando mientras le entran notificaciones.
+
+| Seg | Voz | Pantalla | Visual |
+|---|---|---|---|
+| 0–4 | Hook | ¿TE SUENA? | Notificaciones cada vez más seguidas y el móvil vibrando |
+| 4–7 | "Hasta que el móvil suena distinto. Es Barin." | ESTA SÍ. | Las alertas salen de la pantalla. **En el segundo 5,5 entra la llamada de Barin** con su logo. |
+| 7–10 | "No te mandan alertas. Te llaman." | TE LLAMAMOS. | Se pulsa "Aceptar", transición en forma de tejado (el chevron del logo) y golpe en "llaman" |
+| 10–18 | "Y se acuerdan de todo: la luz por la mañana, el cole de los niños… y nada de quintos sin ascensor. Eso no lo sabe un algoritmo." | SABEMOS LO QUE BUSCAS. | Notas de la llamada escritas a mano. Cada línea se escribe cuando la voz la nombra, y la última ("Que se sientan en casa") no la dice la voz. |
+| 18–20 | "Lo sabe una persona." | QUE TE ESCUCHA. | Foto real de sus oficinas |
+| 20–23 | "Llevan cogiendo el teléfono desde el noventa y cuatro." | 12 OFICINAS · +50 PROFESIONALES · DESDE 1994 | Pared de chevrones de madera, como la de sus oficinas |
+| 23–25,5 | "Cuéntales qué buscas. Ya te llaman ellos." | LA DIFERENCIA ENTRE BUSCAR Y ENCONTRAR. | Cae el logo y aparecen los teléfonos de Córdoba y Málaga |
+| 25,5–29,5 | "Cuarenta y siete alertas… o una llamada." | ¿TE SUENA? → ¿CUÁL COGES? | Vuelve el móvil del principio y suena Barin |
+
+- **CTA:** "Cuéntales qué buscas. Ya te llaman ellos."
+- **LOOP:** "Cuarenta y siete alertas… o una llamada." enlaza con "Cuarenta y siete alertas de pisos hoy". El último plano es el mismo móvil del fotograma 1.
+- **SONIDO:** pulso grave y tenso durante las alertas, parón justo antes de "Te llaman", golpe en "llaman" y música cálida en Re mayor que resuelve cuando cae el logo. Efectos: notificaciones, vibración, tono de llamada propio, bolígrafo y pops.
+
+## Voz: ¿hombre o mujer?
+
+Recomiendo **mujer** para la principal:
+- en la foto real de Barin que sale en el vídeo aparecen dos mujeres en su oficina, así que la voz casa con la imagen;
+- el mensaje es cercanía y "alguien que te escucha", que es el mismo registro de voz de amiga que usáis en Weddea.
+
+La de hombre está lista para el test A/B: mismo montaje y misma música, solo cambia la voz. Se sube una versión cada vez y se compara el hook rate a las 24–48 h.
+
+**Cómo se hizo**
+- Gemini 2.5 Pro TTS (vía Magnific), una sola toma del guion entero, con esta instrucción:
+
+```
+Lee el guion como una narradora española de unos treinta años que le cuenta algo a una amiga
+que lleva meses buscando piso, tomando un café. Voz cálida y con sonrisa, nada de locutora ni
+de anuncio. Empieza con energía y un punto de ironía en lo de las alertas. Ritmo vivo en lo
+gracioso, más lento, bajo y sincero en «Eso no lo sabe un algoritmo. Lo sabe una persona».
+Haz una pausa corta antes de cada giro y remata las frases finales con seguridad, sin subir el
+tono como si fuera una pregunta. Acento de España, natural. La palabra Barin se pronuncia
+BÁ-rin. Las indicaciones entre corchetes son dirección: no las leas.
+```
+
+- La toma de hombre salía en 34 s. Se le han recortado las pausas largas y se ha acelerado un 10 % sin cambiar el tono (`scripts/ajustar-voz.py`). La original está en `voz-tomas/achird-original.wav`.
+- Comprobad cómo pronuncian ellos "Barin". Si es "Barín", se regenera con esa indicación.
 
 ## Marca
 
-Sacada de [inmobiliariabarin.com](https://www.inmobiliariabarin.com) y de las fotos de sus oficinas:
-
+- Logo oficial en SVG (`public/logo-barin.svg`). Sale en la llamada, en "TE LLAMAMOS", en el cierre y en la portada, y el chevron se anima aparte.
 - Magenta corporativo `#E2007A`, negro, blanco y tonos madera.
-- Logo oficial en SVG (`public/logo-barin.svg`); el chevron se anima por separado.
-- Poppins (la que usan en sus creatividades) y Caveat para lo escrito a mano.
-- Recurso gráfico: el chevron/tejado del logo y la pared de chevrones de sus oficinas, usados como transición y fondo.
-- Fotos: `public/img/` (de su web).
+- Poppins (la de sus creatividades) y Caveat para lo escrito a mano.
+- La foto (`public/img/asesoramiento.jpg`) y el logo salen de su web.
 
-## Sonido
+## Cómo se produce
 
-`scripts/generar-audio.mjs` sintetiza toda la banda sonora desde cero y la sincroniza con `src/timeline.json`: dings y vibración de las notificaciones, tono de llamada propio, soplidos en las transiciones, bolígrafo sobre papel y una base musical cálida en Re mayor que entra al coger la llamada. Sin samples ni música de terceros, así que no hay problemas de licencia.
-Si se quiere usar un audio en tendencia, se puede bajar el volumen del original en la propia app.
+Los tiempos salen de la voz, no al revés.
 
-## Uso
+1. **Voz.** Toma en Gemini, guardada en `voz-tomas/<toma>.wav`.
+2. **Tiempos.** `python3 scripts/transcribir.py voz-tomas/<toma>.wav voz-tomas/<toma>.json` saca el tiempo de cada palabra con Whisper. Necesita `pip install faster-whisper`.
+3. **Marcas.** `node scripts/preparar-voz.mjs <toma>` genera `src/voz/<toma>.json`, que son las marcas de cada escena en frames.
+4. **Audio.** `node scripts/generar-audio.mjs <toma>` mezcla voz, música y efectos:
+   - la música baja 9 dB y los efectos 8 dB mientras habla la voz;
+   - el master queda a -14 LUFS con el pico en -1,5 dBTP.
+5. **Vídeo.** `npm run render:mujer`, `npm run render:hombre` y `npm run portada`.
 
-```bash
-npm install
-npm run studio        # previsualizar y editar en el navegador
-npm run render        # genera out/barin-te-llama.mp4
-npm run portada       # genera out/portada.png
-```
+`npm run studio` abre Remotion Studio para retocar. En entornos sin descarga de Chrome, se le indica uno con `REMOTION_CHROME=/ruta/a/headless_shell`.
 
-Los tiempos de cada escena están en `src/timeline.json`; el vídeo y el audio los leen de ahí.
-En entornos sin descarga de Chrome: `REMOTION_CHROME=/ruta/a/headless_shell npm run render`.
+Para añadir otra toma de voz:
+1. Pasa los pasos 1–3.
+2. Añádela en `src/voz/index.ts` y en `src/Root.tsx`.
 
-## Texto sugerido para el post
+## Texto para el post
 
-> ¿Cuántas alertas de pisos te han llegado hoy? 📲
-> En Barin no te mandamos alertas: te llamamos. Porque sabemos lo que buscas (y lo que no).
-> Desde 1994 en Córdoba, y también en Málaga y la Costa del Sol.
-> Cuéntanos qué buscas y nosotros te llamamos. ☎️
+> ¿Cuántas alertas de pisos te han llegado hoy?
+> En Barin no te mandamos alertas: te llamamos. Porque sabemos lo que buscas, y también lo que no (hola, quinto sin ascensor).
+> Desde 1994 en Córdoba, Málaga y la Costa del Sol. Cuéntanos qué buscas y te llamamos nosotros.
 >
-> #InmobiliariaBarin #Córdoba #Málaga #CostaDelSol #BuscarCasa #Inmobiliaria
+> #InmobiliariaBarin #Córdoba #Málaga #CostaDelSol #BuscarPiso #ComprarCasa #Inmobiliaria
+
+## Variantes de hook para test
+
+En cada test se cambia una sola cosa. Solo hay que regrabar la frase del hook con la misma voz e instrucción y volver a renderizar.
+
+1. **Voz:** "Tu móvil ha sonado cuarenta y siete veces hoy. Ninguna era tu casa." · **Pantalla:** "¿TE SUENA?" · **Fotograma 1:** el móvil vibrando sobre la mesa.
+2. **Voz:** "Si estás buscando piso, esto te va a sonar. Y mucho." · **Pantalla:** "47 ALERTAS HOY" · **Fotograma 1:** el contador de notificaciones subiendo.
+3. **Voz:** "Hay una inmobiliaria en Córdoba que no te manda alertas. Te llama." · **Pantalla:** "SÍ, TODAVÍA EXISTE" · **Fotograma 1:** el móvil sonando con el logo de Barin.
+4. **Voz:** "Borra ya las alertas de pisos del móvil. Te explico por qué." · **Pantalla:** "EN 30 SEGUNDOS" · **Fotograma 1:** un pulgar que barre las notificaciones.
+
+Los hooks que se queden por debajo del 25 % de hook rate se descartan. Los que lo pasen se escalan, con más variantes de esa misma familia.

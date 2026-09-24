@@ -1,4 +1,5 @@
 node_modules/
 .remotion/
-# Se genera con `npm run sfx` (también lo hacen studio y render)
+# Generados: npm run render:mujer / render:hombre los rehacen
 public/audio/
+public/voz/

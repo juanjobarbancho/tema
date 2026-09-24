@@ -4,9 +4,7 @@ import {Chevron} from '../componentes/Marca';
 import {Tejado} from '../componentes/Tejado';
 import {clamp, entrada, muelle, tramo} from '../componentes/anim';
 import {C, FUENTE, MANO} from '../tema';
-import T from '../timeline.json';
-
-const E = T.notas;
+import {useToma} from '../contexto';
 
 const ITEMS = [
   '3 dormitorios + despacho',
@@ -35,17 +33,19 @@ const Escrito: React.FC<{frame: number; desde: number; dur: number; children: Re
 
 export const EscenaNotas: React.FC = () => {
   const frame = useCurrentFrame();
-  const libreta = muelle(frame, 12, {damping: 16, stiffness: 140});
-  const subrayado = tramo(frame, 24, 12);
-  const barra = muelle(frame, E.barra, {damping: 13, stiffness: 170});
+  const {eventos} = useToma();
+  const items = eventos.notasItems;
+  const escribir = eventos.notasEscribir;
+  const libreta = muelle(frame, 4, {damping: 16, stiffness: 140});
+  const subrayado = tramo(frame, 14, 12);
 
   return (
     <Tejado fondo={C.papel} acento={C.magenta}>
       <AbsoluteFill style={{fontFamily: FUENTE, color: C.tinta}}>
         <div style={{position: 'absolute', top: 170, left: 0, right: 0, textAlign: 'center', letterSpacing: -2}}>
-          <div style={{fontSize: 82, fontWeight: 800, lineHeight: 1.05, ...entrada(frame, 6, 50)}}>Porque sabemos</div>
+          <div style={{fontSize: 96, fontWeight: 800, lineHeight: 1.05, ...entrada(frame, 6, 50)}}>SABEMOS</div>
           <div style={{position: 'relative', display: 'inline-block', ...entrada(frame, 10, 50)}}>
-            <div style={{fontSize: 92, fontWeight: 800, lineHeight: 1.1, color: C.magenta}}>lo que buscas.</div>
+            <div style={{fontSize: 96, fontWeight: 800, lineHeight: 1.1, color: C.magenta}}>LO QUE BUSCAS.</div>
             <svg
               width="100%"
               height="40"
@@ -72,14 +72,14 @@ export const EscenaNotas: React.FC = () => {
           style={{
             position: 'absolute',
             left: 80,
-            top: 480,
+            top: 560,
             width: 920,
             height: 830,
             borderRadius: 22,
             background: '#FFFEFA',
             boxShadow: '0 30px 70px rgba(60,30,10,0.18), 0 4px 10px rgba(0,0,0,0.06)',
             transform: `rotate(-1.4deg) translateY(${(1 - libreta) * 140}px) scale(${0.9 + 0.1 * libreta})`,
-            opacity: interpolate(frame, [12, 18], [0, 1], clamp),
+            opacity: interpolate(frame, [4, 10], [0, 1], clamp),
             overflow: 'hidden',
           }}
         >
@@ -96,22 +96,22 @@ export const EscenaNotas: React.FC = () => {
           </div>
           <Escrito
             frame={frame}
-            desde={20}
-            dur={12}
+            desde={4}
+            dur={10}
             style={{position: 'absolute', left: 68, top: 100, fontFamily: MANO, fontWeight: 700, fontSize: 88, color: C.tinta}}
           >
             Lucía y Javi
           </Escrito>
 
           {ITEMS.map((texto, k) => {
-            const desde = E.items[k];
-            const check = tramo(frame, desde + E.escribir - 2, 8);
+            const desde = items[k];
+            const check = tramo(frame, desde + escribir - 2, 8);
             return (
               <div key={k} style={{position: 'absolute', left: 70, right: 60, top: ITEMS_TOP + FILA * k, height: FILA, display: 'flex', alignItems: 'center'}}>
                 <Escrito
                   frame={frame}
                   desde={desde}
-                  dur={E.escribir}
+                  dur={escribir}
                   style={{fontFamily: MANO, fontWeight: 600, fontSize: 66, color: k === ITEMS.length - 1 ? C.magenta : C.tinta}}
                 >
                   {texto}
@@ -124,31 +124,6 @@ export const EscenaNotas: React.FC = () => {
           })}
         </div>
 
-        {/* Remate */}
-        <div
-          style={{
-            position: 'absolute',
-            left: 40,
-            right: 40,
-            top: 1350,
-            padding: '32px 40px',
-            background: C.negro,
-            color: C.blanco,
-            borderRadius: 18,
-            textAlign: 'center',
-            fontSize: 62,
-            fontWeight: 800,
-            lineHeight: 1.1,
-            letterSpacing: -1.5,
-            transform: `rotate(${-2 + barra * 0.6}deg) translateY(${(1 - barra) * 500}px)`,
-            opacity: frame >= E.barra ? 1 : 0,
-            boxShadow: '0 24px 60px rgba(0,0,0,0.35)',
-          }}
-        >
-          Eso no lo sabe
-          <br />
-          <span style={{color: C.magenta}}>ningún algoritmo.</span>
-        </div>
       </AbsoluteFill>
     </Tejado>
   );

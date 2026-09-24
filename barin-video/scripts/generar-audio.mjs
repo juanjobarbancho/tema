@@ -1,17 +1,27 @@
-// Genera public/audio/banda-sonora.wav: efectos + música sintetizados desde cero,
-// sincronizados con src/timeline.json. Sin samples externos → sin problemas de licencia.
+// Mezcla la banda sonora de una toma: voz + música generada + efectos, todo sincronizado con
+// las marcas de src/voz/<toma>.json. Sin samples ni música de terceros → sin problemas de derechos.
+//
+// uso: node scripts/generar-audio.mjs laomedeia   → public/audio/laomedeia.wav
+//
+// - La música baja 9 dB mientras habla la voz (y los efectos, 8 dB).
+// - Parón justo antes de "Te llaman" y golpe en "llaman".
+// - Master a -14 LUFS con el pico en -1,5 dBTP (loudnorm de ffmpeg, dos pasadas).
+import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const raiz = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const T = JSON.parse(fs.readFileSync(path.join(raiz, 'src/timeline.json'), 'utf8'));
+const nombre = process.argv[2];
+if (!nombre) throw new Error('Indica la toma: node scripts/generar-audio.mjs laomedeia');
+const T = JSON.parse(fs.readFileSync(path.join(raiz, 'src/voz', `${nombre}.json`), 'utf8'));
+const M = T.marcas;
+const E = T.eventos;
+const S = T.escenas;
 
 const SR = 44100;
 const FPS = T.fps;
 const N = Math.ceil((T.total / FPS) * SR);
-const L = new Float32Array(N);
-const R = new Float32Array(N);
 const f2s = (f) => f / FPS;
 const TAU = Math.PI * 2;
 
@@ -26,17 +36,25 @@ const azar = () => {
 };
 const ruido = () => azar() * 2 - 1;
 
-const mezclar = (seg, buf, ganancia = 1, pan = 0) => {
+const bus = () => ({L: new Float32Array(N), R: new Float32Array(N)});
+const MUSICA = bus();
+const EFECTOS = bus(); // bajan un poco cuando habla la voz
+const GOLPES = bus(); // transiciones y golpes: no se tocan
+
+const mezclarEn = (destino) => (seg, buf, ganancia = 1, pan = 0) => {
   const gl = ganancia * Math.cos(((pan + 1) * Math.PI) / 4);
   const gr = ganancia * Math.sin(((pan + 1) * Math.PI) / 4);
   const i0 = Math.round(seg * SR);
   for (let i = 0; i < buf.length; i++) {
     const j = i0 + i;
     if (j < 0 || j >= N) continue;
-    L[j] += buf[i] * gl;
-    R[j] += buf[i] * gr;
+    destino.L[j] += buf[i] * gl;
+    destino.R[j] += buf[i] * gr;
   }
 };
+const musica = mezclarEn(MUSICA);
+const efecto = mezclarEn(EFECTOS);
+const golpeo = mezclarEn(GOLPES);
 
 const buffer = (dur, fn) => {
   const b = new Float32Array(Math.round(dur * SR));
@@ -208,144 +226,242 @@ const ACORDES = [
   {bajo: 45, notas: [57, 61, 64, 66]}, // A6
 ];
 
-const componerMusica = () => {
-  // La música va ~4 dB por encima de lo que daría la suma "en crudo" para que empaste con los efectos.
-  const m = (seg, buf, ganancia = 1, pan = 0) => mezclar(seg, buf, ganancia * 1.6, pan);
-  const inicio = f2s(T.musica.inicio);
-  const compas = f2s(T.musica.compas);
-  const corchea = compas / 8;
-  const final = T.total / FPS;
-  const compases = Math.round((f2s(T.escenas.cierre[0] + T.cierre.logo + 8) - inicio) / compas);
 
-  for (let k = 0; k <= compases; k++) {
-    const t0 = inicio + k * compas;
-    const ultimo = k === compases;
-    const acorde = ultimo ? ACORDES[0] : ACORDES[k % 4];
-    const dur = ultimo ? final - t0 : compas + 0.6;
+// ---------- Voz ----------
 
-    for (const n of acorde.notas) m(t0, pad(nota(n), dur), 0.03, (n % 5) / 5 - 0.4);
-    m(t0, bajo(nota(acorde.bajo), Math.min(dur, compas)), 0.17);
-    if (!ultimo) m(t0 + compas / 2, bajo(nota(acorde.bajo), compas / 2), 0.1);
-
-    // Arpegio desde el segundo compás.
-    if (k >= 1 && !ultimo) {
-      const orden = [0, 1, 2, 3, 2, 1, 2, 3];
-      const vol = k < 3 ? 0.09 : 0.12;
-      orden.forEach((o, j) => {
-        m(t0 + j * corchea, punteo(nota(acorde.notas[o] + 12)), vol * (j % 2 ? 0.75 : 1), j % 2 ? 0.35 : -0.35);
-      });
+const leerWav = (archivo) => {
+  const b = fs.readFileSync(archivo);
+  let o = 12;
+  let canales = 2;
+  let bits = 16;
+  while (o < b.length) {
+    const id = b.toString('ascii', o, o + 4);
+    const tam = b.readUInt32LE(o + 4);
+    if (id === 'fmt ') {
+      canales = b.readUInt16LE(o + 10);
+      bits = b.readUInt16LE(o + 22);
     }
-
-    // Percusión suave del compás 2 al penúltimo (el último antes del logo queda sin batería).
-    if (k >= 2 && k < compases - 1) {
-      for (let b = 0; b < 4; b++) {
-        if (b % 2 === 0) m(t0 + b * (compas / 4), bombo(), 0.3);
-        m(t0 + b * (compas / 4) + compas / 8, charles(), 0.06, 0.3);
+    if (id === 'data') {
+      const n = tam / (bits / 8) / canales;
+      const l = new Float32Array(n);
+      const r = new Float32Array(n);
+      for (let i = 0; i < n; i++) {
+        l[i] = b.readInt16LE(o + 8 + i * canales * 2) / 32768;
+        r[i] = canales > 1 ? b.readInt16LE(o + 8 + i * canales * 2 + 2) / 32768 : l[i];
       }
+      return {l, r};
     }
-
-    // Acorde final arpegiado lento + campana.
-    if (ultimo) {
-      acorde.notas.forEach((n, j) => m(t0 + j * 0.07, punteo(nota(n + 12), 3), 0.14, j % 2 ? 0.3 : -0.3));
-      m(t0, campana(nota(86)), 0.9);
-      m(t0, bajo(nota(38), final - t0), 0.18);
-    }
+    o += 8 + tam;
   }
+  throw new Error(`WAV sin datos: ${archivo}`);
 };
 
-// ---------- Línea de tiempo ----------
+const voz = leerWav(path.join(raiz, 'public/voz', `${nombre}.wav`));
+const VOZ = bus();
+let picoVoz = 0;
+for (let i = 0; i < voz.l.length; i++) picoVoz = Math.max(picoVoz, Math.abs(voz.l[i]), Math.abs(voz.r[i]));
+for (let i = 0; i < Math.min(N, voz.l.length); i++) {
+  VOZ.L[i] = (voz.l[i] / picoVoz) * 0.8;
+  VOZ.R[i] = (voz.r[i] / picoVoz) * 0.8;
+}
 
-const tel = T.telefono;
-const [notasDesde] = T.escenas.notas;
+// Envolvente de la voz para el ducking (bloques de 10 ms, con 60 ms de anticipación).
+const BLOQUE = SR / 100;
+const bloques = Math.ceil(N / BLOQUE);
+const activa = new Float32Array(bloques);
+for (let k = 0; k < bloques; k++) {
+  let suma = 0;
+  for (let i = k * BLOQUE; i < Math.min(N, (k + 1) * BLOQUE); i++) suma += VOZ.L[i] * VOZ.L[i];
+  activa[k] = Math.sqrt(suma / BLOQUE) > 0.02 ? 1 : 0;
+}
+const anticipada = new Float32Array(bloques);
+for (let k = 0; k < bloques; k++) {
+  for (let d = 0; d <= 6 && k + d < bloques; d++) anticipada[k] = Math.max(anticipada[k], activa[k + d]);
+}
+const curvaDucking = (reduccionDb) => {
+  const minimo = Math.pow(10, -reduccionDb / 20);
+  const g = new Float32Array(N);
+  let actual = 1;
+  const ataque = 1 - Math.exp(-1 / (0.03 * SR));
+  const suelta = 1 - Math.exp(-1 / (0.35 * SR));
+  for (let i = 0; i < N; i++) {
+    const objetivo = anticipada[Math.floor(i / BLOQUE)] ? minimo : 1;
+    actual += (objetivo - actual) * (objetivo < actual ? ataque : suelta);
+    g[i] = actual;
+  }
+  return g;
+};
+
+// ---------- Música ----------
+
+// Compás calculado para que 5 compases vayan de "llaman" al logo: el acorde final cae en el logo.
+const inicioCalido = f2s(M.llaman);
+const compas = (f2s(M.cta) - inicioCalido) / 5;
+const corchea = compas / 8;
+
+// Intro: pulso grave en Re, tenso, hasta el parón.
+const parón = f2s(M.teLlaman) - 0.3;
+for (let t = 0, j = 0; t < parón - 0.05; t += corchea, j++) {
+  const acento = j % 8 === 0 ? 1 : j % 2 === 0 ? 0.7 : 0.5;
+  musica(t, punteo(nota(50), Math.min(0.5, parón - t)), 0.14 * acento, j % 2 ? 0.2 : -0.2);
+  if (j % 4 === 2) musica(t, charles(), 0.05, 0.3);
+}
+musica(0, bajo(nota(38), parón), 0.1);
+
+const PROGRESION = [
+  ACORDES[0], // D
+  ACORDES[1], // Bm
+  ACORDES[2], // G
+  {bajo: 40, notas: [55, 59, 62, 64]}, // Em7
+  ACORDES[3], // A
+];
+PROGRESION.forEach((acorde, k) => {
+  const t0 = inicioCalido + k * compas;
+  for (const n of acorde.notas) musica(t0, pad(nota(n), compas + 0.6), 0.05, (n % 5) / 5 - 0.4);
+  musica(t0, bajo(nota(acorde.bajo), compas), 0.27);
+  musica(t0 + compas / 2, bajo(nota(acorde.bajo), compas / 2), 0.16);
+  const orden = [0, 1, 2, 3, 2, 1, 2, 3];
+  orden.forEach((o, j) => musica(t0 + j * corchea, punteo(nota(acorde.notas[o] + 12)), (k === 0 ? 0.12 : 0.18) * (j % 2 ? 0.75 : 1), j % 2 ? 0.35 : -0.35));
+  if (k >= 1) {
+    for (let b = 0; b < 4; b++) {
+      if (b % 2 === 0) musica(t0 + b * (compas / 4), bombo(), 0.45);
+      musica(t0 + b * (compas / 4) + compas / 8, charles(), 0.09, 0.3);
+    }
+  }
+});
+
+// Resolución en el logo y final tranquilo para que el bucle empiece limpio.
+const tLogo = f2s(M.cta);
+const tFin = T.total / FPS;
+ACORDES[0].notas.forEach((n, j) => musica(tLogo + j * 0.07, punteo(nota(n + 12), 3), 0.2, j % 2 ? 0.3 : -0.3));
+for (const n of ACORDES[0].notas) musica(tLogo, pad(nota(n), tFin - tLogo), 0.045, (n % 5) / 5 - 0.4);
+musica(tLogo, bajo(nota(38), tFin - tLogo), 0.22);
+golpeo(tLogo + f2s(E.cierre.logo + 5), campana(nota(86)), 0.9);
+
+// ---------- Efectos ----------
 
 // 1 · Alertas: cada notificación suena y vibra.
-tel.notificaciones
+T.notificaciones
   .filter((f) => f >= 0)
   .forEach((f, i) => {
-    const t = f2s(f);
     const agudo = i % 2 === 0;
-    mezclar(t, ding(agudo ? 1568 : 1397, agudo ? 2093 : 1865), 0.55 - Math.min(0.2, i * 0.012), i % 2 ? 0.25 : -0.25);
-    mezclar(t, zumbido(), 0.9);
+    efecto(f2s(f), ding(agudo ? 1568 : 1397, agudo ? 2093 : 1865), 0.3 - Math.min(0.1, i * 0.008), i % 2 ? 0.25 : -0.25);
+    efecto(f2s(f), zumbido(), 0.4);
   });
-
-// Barrido de notificaciones.
-mezclar(f2s(tel.barrido), soplido(0.45, 600, 6000), 0.9, 0.4);
+golpeo(f2s(E.barrido), soplido(0.45, 600, 6000), 0.8, 0.4);
 
 // Tono de llamada (motivo propio en Re mayor) + vibración.
 const MOTIVO = [74, 81, 78, 81, 74, 81, 78, 86];
-tel.tonos.forEach((f) => {
-  const t = f2s(f);
-  MOTIVO.forEach((n, j) => mezclar(t + j * 0.11, marimba(nota(n)), 0.35));
-  mezclar(t, zumbido(0.7), 0.7);
-});
-
-// Toque en "Aceptar".
-mezclar(f2s(tel.toque), toque(), 0.8);
+const sonarLlamada = (f) => {
+  MOTIVO.forEach((n, j) => efecto(f2s(f) + j * 0.11, marimba(nota(n)), 0.24));
+  efecto(f2s(f), zumbido(0.7), 0.3);
+};
+E.tonos.forEach(sonarLlamada);
+efecto(f2s(E.toque), toque(), 0.8);
 
 // 2 · Te llamamos.
-const [tlDesde] = T.escenas.teLlamamos;
-mezclar(f2s(tlDesde), soplido(0.5), 0.9);
-mezclar(f2s(tlDesde + T.teLlamamos.golpe), golpe(), 1);
-mezclar(f2s(tlDesde + T.teLlamamos.sub1), pop(700), 0.35);
+golpeo(f2s(S.teLlamamos[0]) - 0.1, soplido(0.45), 0.8);
+golpeo(f2s(M.llaman), golpe(), 1);
 
-// 3 · Notas: transición, garabatos y checks.
-mezclar(f2s(notasDesde), soplido(0.5, 400, 4000), 0.75, -0.3);
-mezclar(f2s(notasDesde + 20), garabato(0.4), 0.9);
-T.notas.items.forEach((f) => {
-  mezclar(f2s(notasDesde + f), garabato(f2s(T.notas.escribir)), 0.9, 0.1);
-  mezclar(f2s(notasDesde + f + T.notas.escribir), pop(1200), 0.35, 0.2);
+// 3 · Notas: bolígrafo y checks.
+const [notas0] = S.notas;
+golpeo(f2s(notas0), soplido(0.5, 400, 4000), 0.6, -0.3);
+efecto(f2s(notas0 + 4), garabato(0.35), 0.8);
+E.notasItems.forEach((f) => {
+  efecto(f2s(notas0 + f), garabato(f2s(E.notasEscribir)), 0.85, 0.1);
+  efecto(f2s(notas0 + f + E.notasEscribir), pop(1200), 0.3, 0.2);
 });
-mezclar(f2s(notasDesde + T.notas.barra), golpe(), 0.45);
 
-// 4-5 · Fotos.
-mezclar(f2s(T.escenas.foto1[0]), soplido(0.5), 0.8, 0.3);
-mezclar(f2s(T.escenas.foto2[0]), soplido(0.5), 0.8, -0.3);
+// 4 · Persona.
+golpeo(f2s(S.persona[0]), soplido(0.5), 0.7, 0.3);
 
-// 6 · Datos.
-const [datosDesde] = T.escenas.datos;
-mezclar(f2s(datosDesde), soplido(0.5), 0.8);
-T.datos.filas.forEach((f, i) => mezclar(f2s(datosDesde + f), pop(760 + i * 90), 0.4));
+// 5 · Datos.
+const [datos0] = S.datos;
+golpeo(f2s(datos0), soplido(0.5), 0.7);
+[E.datos.oficinas, E.datos.profesionales, E.datos.anio + 10, E.datos.ciudades].forEach((f, i) => efecto(f2s(datos0 + f), pop(760 + i * 90), 0.4));
 
-// 7 · Cierre.
-const [cierreDesde] = T.escenas.cierre;
-mezclar(f2s(cierreDesde), soplido(0.55, 300, 3500), 0.8);
-mezclar(f2s(cierreDesde + T.cierre.logo + 6), golpe(), 0.55);
+// 6 · Logo.
+golpeo(f2s(S.cierre[0]), soplido(0.55, 300, 3500), 0.7);
+golpeo(f2s(S.cierre[0] + E.cierre.logo + 5), golpe(), 0.45);
 
-componerMusica();
+// 7 · Bucle: vuelven las alertas… y suena la llamada.
+const [bucle0] = S.bucle;
+golpeo(f2s(bucle0), soplido(0.45), 0.6);
+E.bucle.notificaciones.forEach((f, i) => {
+  efecto(f2s(bucle0 + f), ding(i % 2 ? 1397 : 1568, i % 2 ? 1865 : 2093), 0.2);
+  efecto(f2s(bucle0 + f), zumbido(), 0.3);
+});
+E.bucle.tonos.forEach((f) => sonarLlamada(bucle0 + f));
 
-// ---------- Master ----------
-let pico = 0;
+// ---------- Mezcla y master ----------
+
+const duckMusica = curvaDucking(9);
+const duckEfectos = curvaDucking(8);
+const MEZCLA = bus();
+const fundido = Math.round(0.35 * SR);
 for (let i = 0; i < N; i++) {
-  L[i] = Math.tanh(L[i] * 1.1);
-  R[i] = Math.tanh(R[i] * 1.1);
-  pico = Math.max(pico, Math.abs(L[i]), Math.abs(R[i]));
-}
-const norm = 0.89 / pico;
-const fundido = Math.round(0.6 * SR);
-
-const datos = Buffer.alloc(N * 4);
-for (let i = 0; i < N; i++) {
-  const f = i > N - fundido ? (N - i) / fundido : 1;
-  datos.writeInt16LE(Math.round(Math.max(-1, Math.min(1, L[i] * norm * f)) * 32767), i * 4);
-  datos.writeInt16LE(Math.round(Math.max(-1, Math.min(1, R[i] * norm * f)) * 32767), i * 4 + 2);
+  const fin = i > N - fundido ? (N - i) / fundido : 1;
+  for (const c of ['L', 'R']) {
+    MEZCLA[c][i] = (VOZ[c][i] + MUSICA[c][i] * 0.75 * duckMusica[i] + EFECTOS[c][i] * duckEfectos[i] + GOLPES[c][i] * 0.8) * fin;
+  }
 }
 
-const cabecera = Buffer.alloc(44);
-cabecera.write('RIFF', 0);
-cabecera.writeUInt32LE(36 + datos.length, 4);
-cabecera.write('WAVE', 8);
-cabecera.write('fmt ', 12);
-cabecera.writeUInt32LE(16, 16);
-cabecera.writeUInt16LE(1, 20);
-cabecera.writeUInt16LE(2, 22);
-cabecera.writeUInt32LE(SR, 24);
-cabecera.writeUInt32LE(SR * 4, 28);
-cabecera.writeUInt16LE(4, 32);
-cabecera.writeUInt16LE(16, 34);
-cabecera.write('data', 36);
-cabecera.writeUInt32LE(datos.length, 40);
+const escribirWav = (archivo, {L, R}) => {
+  let pico = 0;
+  for (let i = 0; i < N; i++) pico = Math.max(pico, Math.abs(L[i]), Math.abs(R[i]));
+  const g = pico > 0.98 ? 0.98 / pico : 1;
+  const datos = Buffer.alloc(N * 4);
+  for (let i = 0; i < N; i++) {
+    datos.writeInt16LE(Math.round(Math.max(-1, Math.min(1, L[i] * g)) * 32767), i * 4);
+    datos.writeInt16LE(Math.round(Math.max(-1, Math.min(1, R[i] * g)) * 32767), i * 4 + 2);
+  }
+  const cab = Buffer.alloc(44);
+  cab.write('RIFF', 0);
+  cab.writeUInt32LE(36 + datos.length, 4);
+  cab.write('WAVE', 8);
+  cab.write('fmt ', 12);
+  cab.writeUInt32LE(16, 16);
+  cab.writeUInt16LE(1, 20);
+  cab.writeUInt16LE(2, 22);
+  cab.writeUInt32LE(SR, 24);
+  cab.writeUInt32LE(SR * 4, 28);
+  cab.writeUInt16LE(4, 32);
+  cab.writeUInt16LE(16, 34);
+  cab.write('data', 36);
+  cab.writeUInt32LE(datos.length, 40);
+  fs.writeFileSync(archivo, Buffer.concat([cab, datos]));
+};
 
-const salida = path.join(raiz, 'public/audio/banda-sonora.wav');
-fs.mkdirSync(path.dirname(salida), {recursive: true});
-fs.writeFileSync(salida, Buffer.concat([cabecera, datos]));
-console.log(`Banda sonora: ${salida} (${(N / SR).toFixed(2)} s)`);
+fs.mkdirSync(path.join(raiz, 'public/audio'), {recursive: true});
+const bruto = path.join(raiz, 'public/audio', `${nombre}.bruto.wav`);
+const salida = path.join(raiz, 'public/audio', `${nombre}.wav`);
+escribirWav(bruto, MEZCLA);
+
+// Loudnorm en dos pasadas: -14 LUFS integrados, pico real -1,5 dBTP.
+const bin = path.join(raiz, 'node_modules/@remotion/compositor-linux-x64-gnu');
+const ff = (args) =>
+  execFileSync(path.join(bin, 'ffmpeg'), args, {env: {...process.env, LD_LIBRARY_PATH: bin}, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe']});
+// loudnorm escribe su medida (JSON) en stderr.
+const medirLoudness = (archivo) => {
+  const log = execFileSync('bash', ['-c', `LD_LIBRARY_PATH="${bin}" "${bin}/ffmpeg" -hide_banner -i "${archivo}" -af loudnorm=I=-14:TP=-1.5:LRA=11:print_format=json -f null - 2>&1`], {
+    encoding: 'utf8',
+  });
+  return JSON.parse(log.slice(log.lastIndexOf('{'), log.lastIndexOf('}') + 1));
+};
+const medida = medirLoudness(bruto);
+ff([
+  '-loglevel',
+  'error',
+  '-y',
+  '-i',
+  bruto,
+  '-af',
+  `loudnorm=I=-14:TP=-1.5:LRA=11:measured_I=${medida.input_i}:measured_TP=${medida.input_tp}:measured_LRA=${medida.input_lra}:measured_thresh=${medida.input_thresh}:offset=${medida.target_offset}:linear=true,aresample=44100`,
+  '-c:a',
+  'pcm_s16le',
+  salida,
+]);
+fs.rmSync(bruto);
+
+const final = medirLoudness(salida);
+console.log(`Banda sonora ${nombre}: ${(N / SR).toFixed(2)} s · ${final.input_i} LUFS · pico ${final.input_tp} dBTP`);
