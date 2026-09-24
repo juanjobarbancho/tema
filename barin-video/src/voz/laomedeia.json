@@ -1,30 +1,30 @@
 {
   "toma": "laomedeia",
   "fps": 30,
-  "total": 885,
-  "duracionVoz": 27.851,
+  "total": 880,
+  "duracionVoz": 27.646,
   "marcas": {
     "inicio": 0,
     "ninguna": 84,
-    "hasta": 141,
+    "hasta": 140,
     "distinto": 178,
-    "barin": 206,
-    "noAlertas": 243,
-    "teLlaman": 285,
-    "llaman": 292,
-    "acuerdan": 309,
-    "luz": 354,
-    "cole": 393,
-    "quintos": 432,
-    "algoritmo": 491,
-    "persona": 543,
-    "llevan": 603,
-    "noventa": 654,
-    "cta": 687,
-    "yaTeLlaman": 726,
-    "cierre": 765,
-    "llamada": 815,
-    "finVoz": 833
+    "barin": 208,
+    "noAlertas": 237,
+    "teLlaman": 279,
+    "llaman": 286,
+    "acuerdan": 303,
+    "luz": 348,
+    "cole": 387,
+    "quintos": 426,
+    "algoritmo": 485,
+    "persona": 536,
+    "llevan": 597,
+    "noventa": 648,
+    "cta": 683,
+    "yaTeLlaman": 721,
+    "cierre": 759,
+    "llamada": 809,
+    "finVoz": 829
   },
   "notificaciones": [
     -40,
@@ -62,37 +62,37 @@
   "escenas": {
     "telefono": [
       0,
-      299
+      293
     ],
     "teLlamamos": [
-      285,
+      279,
       42
     ],
     "notas": [
-      313,
-      244
+      307,
+      243
     ],
     "persona": [
-      543,
-      74
+      536,
+      75
     ],
     "datos": [
-      603,
-      98
+      597,
+      100
     ],
     "cierre": [
-      687,
-      92
+      683,
+      90
     ],
     "bucle": [
-      765,
-      120
+      759,
+      121
     ]
   },
   "eventos": {
-    "barrido": 141,
+    "barrido": 140,
     "llamada": 168,
-    "toque": 281,
+    "toque": 275,
     "tonos": [
       170,
       206,
@@ -115,7 +115,7 @@
     "cierre": {
       "logo": 2,
       "tagline": 16,
-      "telefonos": 39
+      "telefonos": 38
     },
     "bucle": {
       "notificaciones": [

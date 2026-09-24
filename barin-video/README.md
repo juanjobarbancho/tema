@@ -7,7 +7,7 @@ Sigue el método de los vídeos de historia de Pawer y Weddea: una voz que te lo
 
 | Archivo | Qué es |
 |---|---|
-| `out/barin-mujer.mp4` | Versión principal, voz de mujer (Laomedeia) · 29,5 s |
+| `out/barin-mujer.mp4` | Versión principal, voz de mujer (Laomedeia) · 29,3 s |
 | `out/barin-hombre.mp4` | Versión para test A/B, voz de hombre (Achird) · 30,5 s |
 | `out/portada.png` | Portada (lo importante entre y=240 e y=1680) |
 
@@ -54,12 +54,13 @@ que lleva meses buscando piso, tomando un café. Voz cálida y con sonrisa, nada
 de anuncio. Empieza con energía y un punto de ironía en lo de las alertas. Ritmo vivo en lo
 gracioso, más lento, bajo y sincero en «Eso no lo sabe un algoritmo. Lo sabe una persona».
 Haz una pausa corta antes de cada giro y remata las frases finales con seguridad, sin subir el
-tono como si fuera una pregunta. Acento de España, natural. La palabra Barin se pronuncia
-BÁ-rin. Las indicaciones entre corchetes son dirección: no las leas.
+tono como si fuera una pregunta. Acento de España, natural. La marca Bárin es una palabra
+llana: el acento va en la primera sílaba, BÁ-rin, igual que en «Carmen» o «joven». Nunca digas
+ba-RÍN. Las indicaciones entre corchetes son dirección: no las leas.
 ```
 
 - La toma de hombre salía en 34 s. Se le han recortado las pausas largas y se ha acelerado un 10 % sin cambiar el tono (`scripts/ajustar-voz.py`). La original está en `voz-tomas/achird-original.wav`.
-- Comprobad cómo pronuncian ellos "Barin". Si es "Barín", se regenera con esa indicación.
+- **Pronunciación:** es BÁ-rin, con el acento en "Ba". En las dos tomas se ha regenerado solo la frase "Es Barin", escrita «Es Bárin» para forzar el acento, y se ha empalmado en su sitio con `scripts/sustituir-frase.py`. El script conserva las pausas originales e iguala el nivel. El resto de cada toma es el de siempre: `voz-tomas/*-original.wav` son las tomas sin tocar, y `voz-tomas/barin/` los recortes elegidos.
 
 ## Marca
 
@@ -75,6 +76,7 @@ Los tiempos salen de la voz, no al revés.
 1. **Voz.** Toma en Gemini, guardada en `voz-tomas/<toma>.wav`.
 2. **Tiempos.** `python3 scripts/transcribir.py voz-tomas/<toma>.wav voz-tomas/<toma>.json` saca el tiempo de cada palabra con Whisper. Necesita `pip install faster-whisper`.
 3. **Marcas.** `node scripts/preparar-voz.mjs <toma>` genera `src/voz/<toma>.json`, que son las marcas de cada escena en frames.
+   - Para corregir una sola frase, se regenera aparte, se empalma con `scripts/sustituir-frase.py` (`--desde es --hasta barin`) y se repiten los pasos 2 y 3.
 4. **Audio.** `node scripts/generar-audio.mjs <toma>` mezcla voz, música y efectos:
    - la música baja 9 dB y los efectos 8 dB mientras habla la voz;
    - el master queda a -14 LUFS con el pico en -1,5 dBTP.

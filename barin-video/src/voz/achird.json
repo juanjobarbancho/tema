@@ -1,30 +1,30 @@
 {
   "toma": "achird",
   "fps": 30,
-  "total": 914,
-  "duracionVoz": 28.996,
+  "total": 915,
+  "duracionVoz": 29.057,
   "marcas": {
     "inicio": 0,
     "ninguna": 83,
     "hasta": 120,
     "distinto": 165,
-    "barin": 192,
+    "barin": 194,
     "noAlertas": 228,
-    "teLlaman": 267,
-    "llaman": 272,
-    "acuerdan": 297,
-    "luz": 336,
-    "cole": 382,
-    "quintos": 431,
-    "algoritmo": 489,
-    "persona": 546,
-    "llevan": 603,
-    "noventa": 663,
-    "cta": 703,
-    "yaTeLlaman": 750,
-    "cierre": 788,
-    "llamada": 840,
-    "finVoz": 862
+    "teLlaman": 268,
+    "llaman": 274,
+    "acuerdan": 299,
+    "luz": 339,
+    "cole": 384,
+    "quintos": 433,
+    "algoritmo": 490,
+    "persona": 548,
+    "llevan": 605,
+    "noventa": 665,
+    "cta": 704,
+    "yaTeLlaman": 752,
+    "cierre": 789,
+    "llamada": 842,
+    "finVoz": 864
   },
   "notificaciones": [
     -40,
@@ -55,37 +55,37 @@
   "escenas": {
     "telefono": [
       0,
-      281
+      282
     ],
     "teLlamamos": [
-      267,
-      48
+      268,
+      49
     ],
     "notas": [
-      301,
+      303,
       259
     ],
     "persona": [
-      546,
+      548,
       71
     ],
     "datos": [
-      603,
-      114
+      605,
+      113
     ],
     "cierre": [
-      703,
+      704,
       99
     ],
     "bucle": [
-      788,
+      789,
       126
     ]
   },
   "eventos": {
     "barrido": 120,
     "llamada": 155,
-    "toque": 263,
+    "toque": 264,
     "tonos": [
       157,
       193,
@@ -93,10 +93,10 @@
     ],
     "notasItems": [
       8,
-      35,
+      36,
       81,
       130,
-      188
+      187
     ],
     "notasEscribir": 16,
     "datos": {
@@ -108,7 +108,7 @@
     "cierre": {
       "logo": 2,
       "tagline": 16,
-      "telefonos": 47
+      "telefonos": 48
     },
     "bucle": {
       "notificaciones": [
@@ -121,12 +121,12 @@
         31,
         34
       ],
-      "llamada": 46,
+      "llamada": 47,
       "tonos": [
-        48,
-        84
+        49,
+        85
       ],
-      "rotulo": 52
+      "rotulo": 53
     }
   }
 }
